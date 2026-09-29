@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f7f2" />
+    <meta name="description" content="Conheça o Perdidos no CAPS: um grupo inclusivo para maiores de 18 anos, para conversar, fazer amizades e compartilhar rolês." />
+    <title>Perdidos no CAPS — conheça o grupo</title>
+    <script>
+      ;(() => {
+        const systemTheme = () =>
+          matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        let theme
+        try {
+          const saved = localStorage.getItem('perdidos-no-caps-theme')
+          theme = ['light', 'dark'].includes(saved) ? saved : systemTheme()
+        } catch {
+          theme = systemTheme()
+        }
+        document.documentElement.dataset.theme = theme
+        document.documentElement.style.colorScheme = theme
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

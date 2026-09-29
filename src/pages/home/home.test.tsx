@@ -1,0 +1,111 @@
+import { screen } from '@testing-library/react'
+import { render } from '@/test/render'
+import { describe, expect, it } from 'vitest'
+import { HomePage } from './index'
+import { normalizeContent } from '@/features/group/group.mapper'
+
+describe('vitrine do grupo', () => {
+  it('apresenta o grupo e a idade mínima sem inventar contatos', () => {
+    render(<HomePage />)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Perdidos no CAPS',
+    )
+    expect(screen.getAllByText(/18 anos/i).length).toBeGreaterThan(0)
+    expect(
+      screen.queryByRole('link', { name: /instagram/i }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: /whatsapp/i }),
+    ).not.toBeInTheDocument()
+  })
+  it('publica as regras e redes recebidas do CMS', () => {
+    const content = normalizeContent({
+      rules: [
+        {
+          title: 'Respeito',
+          description: 'Respeite os demais membros.',
+        },
+      ],
+      instagram: 'https://www.instagram.com/exemplo/',
+    })
+    render(<HomePage initialContent={content} />)
+    expect(screen.getByText('Respeite os demais membros.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /instagram/i })).toHaveAttribute(
+      'href',
+      'https://www.instagram.com/exemplo/',
+    )
+  })
+})
+
+it('omite seções vazias e seus links de navegação', () => {
+  render(<HomePage initialContent={normalizeContent(null)} />)
+  expect(
+    screen.queryByRole('link', { name: 'Convivência' }),
+  ).not.toBeInTheDocument()
+  expect(
+    screen.queryByRole('link', { name: /Nossas redes/ }),
+  ).not.toBeInTheDocument()
+  expect(
+    screen.queryByRole('region', { name: 'Respeito faz parte do encontro.' }),
+  ).not.toBeInTheDocument()
+  expect(
+    screen.queryByRole('region', { name: 'Quer conhecer melhor?' }),
+  ).not.toBeInTheDocument()
+})
+
+it('mantém navegação conectada às seções publicadas e redes em nova aba', () => {
+  render(
+    <HomePage
+      initialContent={normalizeContent({
+        rules: [{ title: 'Regra oficial', description: 'Uma regra oficial' }],
+        instagram: 'https://www.instagram.com/exemplo/',
+        facebook: 'https://www.facebook.com/exemplo/',
+      })}
+    />,
+  )
+
+  expect(screen.getByRole('link', { name: 'Convivência' })).toHaveAttribute(
+    'href',
+    '#regras',
+  )
+  expect(
+    screen.getByRole('region', { name: 'Respeito faz parte do encontro.' }),
+  ).toHaveAttribute('id', 'regras')
+  expect(screen.getByRole('link', { name: /Nossas redes/ })).toHaveAttribute(
+    'href',
+    '#contato',
+  )
+  expect(
+    screen.getByRole('region', { name: 'Quer conhecer melhor?' }),
+  ).toHaveAttribute('id', 'contato')
+  for (const network of [/Instagram/, /Facebook/]) {
+    const link = screen.getByRole('link', { name: network })
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+  }
+})
+
+it('identifica semanticamente as listas de eventos e regras', () => {
+  render(
+    <HomePage
+      initialContent={normalizeContent({
+        events: [{ title: 'Encontro', description: 'Descrição do encontro' }],
+        rules: [{ title: 'Respeito', description: 'Uma regra importante' }],
+      })}
+    />,
+  )
+
+  expect(
+    screen.getByRole('list', { name: 'Eventos do grupo' }),
+  ).toBeInTheDocument()
+  expect(
+    screen.getByRole('list', { name: 'Regras de convivência' }),
+  ).toBeInTheDocument()
+})
+
+it('expõe o nome da marca uma única vez no link do cabeçalho', () => {
+  render(<HomePage initialContent={normalizeContent(null)} />)
+  expect(
+    screen.getByRole('link', { name: 'Perdidos no CAPS' }),
+  ).toHaveAttribute('href', '#inicio')
+})
