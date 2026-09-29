@@ -1,0 +1,80 @@
+{
+  "about": "Grupo destinado pra amizades, rolês e boas histórias (e o resto vocês já sabem)\nRespeito sempre — Falas discriminatórias, misóginas, ofensivas e qualquer tipo de falta de noção e atitudes inconvenientes não têm espaço aqui.",
+  "activities": [
+    "Conversas",
+    "Rolês em grupo",
+    "Eventos e encontros",
+    "Esportes"
+  ],
+  "description": "É bagunçado, mas tem gerência ✅",
+  "events": [
+    {
+      "description": "Venha com a sua fantasia dia 31 de outubro e festeje o dia das bruxas!!!!",
+      "image": {
+        "alt": "banner do halloween para dia 31/10",
+        "asset": {
+          "metadata": {
+            "dimensions": {
+              "_type": "sanity.imageDimensions",
+              "aspectRatio": 3,
+              "height": 724,
+              "width": 2172
+            }
+          },
+          "url": "https://cdn.sanity.io/images/khxz4stb/production/cb0644ccde969e50f32836a57a326dd8d89522c3-2172x724.png"
+        }
+      },
+      "title": "Festa de Halloween"
+    }
+  ],
+  "facebook": null,
+  "instagram": "https://www.instagram.com/perdidosnocapsrp/",
+  "name": "Perdidos no CAPS",
+  "rules": [
+    {
+      "description": "Sem insistência, sem pressão e sem clima estranho.",
+      "title": "NÃO É NÃO"
+    },
+    {
+      "description": "Ofensas, indiretas, exposição ou qualquer falta de respeito = BAN. E mais: chamar alguém do grupo no privado sem abertura/consentimento e gerar desconforto ou reclamação também é passível de ban.",
+      "title": "RESPEITO EM QUALQUER SITUAÇÃO"
+    },
+    {
+      "description": "Nada de levar assunto do grupo pra fora, nem print, nem comentário atravessado. Já tivemos casos assim e, sinceramente, só serve pra causar intriga. Então fica o aviso: bom senso é o mínimo. Se as ADM's souberem quem foi, é BAN na hora.",
+      "title": "O QUE ACONTECE AQUI, FICA AQUI"
+    },
+    {
+      "description": "Indiretas, alfinetadas ou “recadinhos” no grupo não vão ser tolerados. Resolve no privado.",
+      "title": "SEM TRETA NO GRUPO"
+    },
+    {
+      "description": "Evitar política,religião,futebol e outras discussões que claramente só geram caos.",
+      "title": "ASSUNTOS POLÊMICOS"
+    },
+    {
+      "description": "Não é só sobre sumir: participação conta. Cada caso será avaliado pelos ADM’s — quem não interage, não cola ou só aparece quando convém pode ser removido.",
+      "title": "INATIVOS"
+    },
+    {
+      "description": "Nude, assuntos +18 ou similares: só no privado e com consentimento.",
+      "title": "CONTEÚDO SENSÍVEL🔥"
+    },
+    {
+      "description": "SOMENTE EM VISUALIZAÇÃO ÚNICA  Evitar exposição desnecessária. Bom senso sempre (principalmente com outras pessoas).  Figurinhas +18 após as 19h.",
+      "title": "FOTOS E VÍDEOS📸📹"
+    },
+    {
+      "description": "Só com autorização de ADM.",
+      "title": "DIVULGAÇÕES"
+    },
+    {
+      "description": "Chamem uma das ADM's pra organizar.",
+      "title": "BRINCADEIRAS NO GRUPO"
+    },
+    {
+      "description": "A ideia é sair do virtual também. Quem não cola NUNCA e não se envolve, naturalmente não faz sentido permanecer.",
+      "title": "ROLÊS DO GRUPO"
+    }
+  ],
+  "tagline": "Grupo destinado pra amizades, rolês e boas histórias"
+}
