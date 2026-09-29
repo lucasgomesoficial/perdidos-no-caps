@@ -15,10 +15,7 @@ npm run dev
 Preencha no `.env.local` o token somente leitura da Content Delivery API. Sem configuração completa, o site utiliza os textos básicos de `src/features/group/group.defaults.ts`; regras, eventos e redes sociais não são inventados pelo fallback.
 
 ```env
-VITE_CONTENTFUL_SPACE_ID=nofz0vh5p7s4
-VITE_CONTENTFUL_ENVIRONMENT=master
 VITE_CONTENTFUL_DELIVERY_TOKEN=
-VITE_CONTENTFUL_GROUP_PAGE_ENTRY_ID=perdidos-no-caps
 ```
 
 Comandos de verificação:
@@ -49,7 +46,7 @@ Para permitir que outra pessoa edite, convide-a nas configurações de usuários
 
 O frontend usa apenas a Content Delivery API, que é somente leitura. O token em `VITE_CONTENTFUL_DELIVERY_TOKEN` fica disponível no bundle do navegador por funcionamento do Vite, mas não permite criar, editar ou apagar conteúdo.
 
-Nunca coloque um Personal Access Token ou token da Content Management API em variável `VITE_*`, no repositório ou na Vercel. A aplicação publicada precisa somente das quatro variáveis mostradas acima.
+Nunca coloque um Personal Access Token ou token da Content Management API em variável `VITE_*`, no repositório ou na Vercel. A aplicação publicada precisa somente do token de entrega mostrado acima. O Space ID `nofz0vh5p7s4`, o ambiente `master` e a entrada `perdidos-no-caps` são padrões públicos do projeto e podem ser sobrescritos pelas variáveis correspondentes quando necessário.
 
 No painel do Contentful, o token de entrega fica em **Settings → API keys**. A chave criada para este projeto se chama **Perdidos no CAPS - Vite** e está limitada ao ambiente `master`.
 
@@ -76,13 +73,10 @@ Remova `CONTENTFUL_MANAGEMENT_TOKEN` do `.env.local` assim que o comando termina
 Cadastre estas variáveis no projeto da Vercel e faça um novo deploy:
 
 ```text
-VITE_CONTENTFUL_SPACE_ID
-VITE_CONTENTFUL_ENVIRONMENT
 VITE_CONTENTFUL_DELIVERY_TOKEN
-VITE_CONTENTFUL_GROUP_PAGE_ENTRY_ID
 ```
 
-Não cadastre `CONTENTFUL_MANAGEMENT_TOKEN`. O build continua sendo `npm run build` e o diretório de saída continua sendo `dist`.
+Marque a variável para **Production**. Não cadastre `CONTENTFUL_MANAGEMENT_TOKEN`. O build falha com uma mensagem explícita se o token de entrega estiver ausente ou inválido; o diretório de saída continua sendo `dist`.
 
 ## Carregamento e fallback
 

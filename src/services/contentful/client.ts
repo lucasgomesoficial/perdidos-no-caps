@@ -1,23 +1,14 @@
 import { createClient } from 'contentful'
+import { resolveContentfulConfig } from './config'
 
-const space = import.meta.env.VITE_CONTENTFUL_SPACE_ID?.trim()
-const environment =
-  import.meta.env.VITE_CONTENTFUL_ENVIRONMENT?.trim() || 'master'
-const accessToken = import.meta.env.VITE_CONTENTFUL_DELIVERY_TOKEN?.trim()
-const entryId = import.meta.env.VITE_CONTENTFUL_GROUP_PAGE_ENTRY_ID?.trim()
-const identifier = /^[A-Za-z0-9_-]{1,64}$/
-const deliveryToken = /^[A-Za-z0-9_-]{10,512}$/
-const validConfig =
-  space &&
-  identifier.test(space) &&
-  identifier.test(environment) &&
-  accessToken &&
-  deliveryToken.test(accessToken) &&
-  entryId &&
-  identifier.test(entryId)
+const config = resolveContentfulConfig(import.meta.env)
 
-export const contentfulGroupPageEntryId = validConfig ? entryId : undefined
+export const contentfulGroupPageEntryId = config?.entryId
 
-export const contentfulClient = validConfig
-  ? createClient({ space, environment, accessToken })
+export const contentfulClient = config
+  ? createClient({
+      space: config.space,
+      environment: config.environment,
+      accessToken: config.accessToken,
+    })
   : null
