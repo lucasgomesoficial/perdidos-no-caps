@@ -1,37 +1,37 @@
-import { sanityClient } from '@/services/sanity/client'
+import {
+  contentfulClient,
+  contentfulGroupPageEntryId,
+} from '@/services/contentful/client'
 import { normalizeContent } from './group.mapper'
 import type { GroupContent } from './group.types'
 
-const GROUP_PAGE_QUERY = `
-  *[_type == "groupPage" && _id == "groupPage"][0] {
-    name,
-    tagline,
-    description,
-    about,
-    activities,
-    rules[]{title, description},
-    events[]{
-      title,
-      description,
-      image{
-        alt,
-        asset->{url, metadata{dimensions}}
-      }
-    },
-    instagram,
-    facebook
-  }
-`
+function abortError(): DOMException {
+  return new DOMException('The operation was aborted.', 'AbortError')
+}
+
+function waitForRequest<T>(request: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.reject(abortError())
+
+  return new Promise((resolve, reject) => {
+    const onAbort = () => reject(abortError())
+    signal.addEventListener('abort', onAbort, { once: true })
+
+    request.then(resolve, reject).finally(() => {
+      signal.removeEventListener('abort', onAbort)
+    })
+  })
+}
 
 export async function loadGroupContent(
   signal: AbortSignal,
 ): Promise<GroupContent> {
-  if (!sanityClient) return normalizeContent(null)
+  if (!contentfulClient || !contentfulGroupPageEntryId)
+    return normalizeContent(null)
 
-  const data = await sanityClient.fetch<unknown>(
-    GROUP_PAGE_QUERY,
-    {},
-    { signal },
+  const request = contentfulClient.withoutUnresolvableLinks.getEntry(
+    contentfulGroupPageEntryId,
+    { include: 2 },
   )
+  const data = await waitForRequest(request, signal)
   return normalizeContent(data)
 }

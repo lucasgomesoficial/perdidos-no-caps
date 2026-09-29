@@ -27,6 +27,11 @@ function record(value: unknown): Record<string, unknown> | undefined {
     : undefined
 }
 
+function fields(value: unknown): Record<string, unknown> | undefined {
+  const data = record(value)
+  return record(data?.fields) ?? data
+}
+
 function requiredText(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value.trim() : undefined
 }
@@ -37,7 +42,7 @@ function objects<T>(
 ): T[] {
   if (!Array.isArray(value)) return []
   return value.flatMap((item) => {
-    const data = record(item)
+    const data = fields(item)
     if (!data) return []
     const normalized = normalize(data)
     return normalized ? [normalized] : []
@@ -50,11 +55,36 @@ function rule(value: Record<string, unknown>): GroupRule | undefined {
   return title && description ? { title, description } : undefined
 }
 
-function image(value: unknown): GroupImage | undefined {
-  const data = record(value)
-  const asset = record(data?.asset)
-  const dimensions = record(record(asset?.metadata)?.dimensions)
-  const rawUrl = requiredText(asset?.url)
+function optimizedImageUrl(rawUrl: string): string | undefined {
+  try {
+    const url = new URL(rawUrl.startsWith('//') ? `https:${rawUrl}` : rawUrl)
+    if (url.protocol !== 'https:') return undefined
+
+    if (url.hostname === 'cdn.sanity.io') {
+      url.searchParams.set('w', '1200')
+      url.searchParams.set('auto', 'format')
+      return url.href
+    }
+
+    if (url.hostname === 'images.ctfassets.net') {
+      url.searchParams.set('w', '1200')
+      url.searchParams.set('fm', 'webp')
+      return url.href
+    }
+  } catch {
+    /* Asset inválido: o evento continua sem imagem. */
+  }
+  return undefined
+}
+
+function image(value: unknown, fallbackAlt = ''): GroupImage | undefined {
+  const data = fields(value)
+  const sanityAsset = record(data?.asset)
+  const sanityDimensions = record(record(sanityAsset?.metadata)?.dimensions)
+  const contentfulFile = record(data?.file)
+  const contentfulDimensions = record(record(contentfulFile?.details)?.image)
+  const rawUrl = requiredText(sanityAsset?.url) ?? requiredText(contentfulFile?.url)
+  const dimensions = sanityDimensions ?? contentfulDimensions
   const width = dimensions?.width
   const height = dimensions?.height
 
@@ -67,20 +97,14 @@ function image(value: unknown): GroupImage | undefined {
   )
     return undefined
 
-  try {
-    const url = new URL(rawUrl)
-    if (url.protocol !== 'https:' || url.hostname !== 'cdn.sanity.io')
-      return undefined
-    url.searchParams.set('w', '1200')
-    url.searchParams.set('auto', 'format')
-    return {
-      url: url.href,
-      width,
-      height,
-      alt: requiredText(data?.alt) ?? '',
-    }
-  } catch {
-    return undefined
+  const url = optimizedImageUrl(rawUrl)
+  if (!url) return undefined
+
+  return {
+    url,
+    width,
+    height,
+    alt: requiredText(data?.alt) ?? fallbackAlt,
   }
 }
 
@@ -88,7 +112,10 @@ function event(value: Record<string, unknown>): GroupEvent | undefined {
   const title = requiredText(value.title)
   const description = requiredText(value.description)
   if (!title || !description) return undefined
-  const normalizedImage = image(value.image)
+  const normalizedImage = image(
+    value.image,
+    requiredText(value.imageAlt) ?? '',
+  )
   return {
     title,
     description,
@@ -117,8 +144,7 @@ function socialUrl(
 }
 
 export function normalizeContent(input: unknown): GroupContent {
-  const data =
-    input && typeof input === 'object' ? (input as Record<string, unknown>) : {}
+  const data = fields(input) ?? {}
   return {
     name: text(data.name, defaultContent.name),
     tagline: text(data.tagline, defaultContent.tagline),
