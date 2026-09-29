@@ -1,21 +1,32 @@
 # MVP — Perdidos no CAPS
 
-Vitrine pública, inclusiva e voltada a maiores de 18 anos. Uma página responsiva com apresentação, sobre o grupo, atividades, regras e links para Instagram e Facebook. Interação acontece fora do site. Não publicar telefone de administrador, link de WhatsApp, endereço de encontros, inscrições ou confirmação de presença.
+## Objetivo
 
-## Base aprovada na conversa
+Criar uma vitrine pública, inclusiva e voltada a maiores de 18 anos para apresentar o grupo, suas regras, atividades, eventos e redes sociais. A interação e o ingresso no grupo acontecem fora do aplicativo.
 
-Vite, React, TypeScript, Tailwind CSS, componentes shadcn/ui e Sanity. Identidade visual e logo serão definidas depois. Textos oficiais e perfis sociais serão enviados pelo responsável; a base contém apenas apresentação provisória derivada do escopo informado. Regras e contatos ficam ocultos enquanto não forem preenchidos.
+## Tecnologia
 
-## Implementação
+Vite, React, TypeScript, Tailwind CSS, componentes no padrão shadcn/ui e Contentful como CMS. O site é estático e pode ser hospedado na Vercel.
 
-1. Configurar aplicação, estilos e Vitest.
-2. Criar página sem dependência de credenciais para desenvolvimento local.
-3. Consumir um documento público do Sanity com validação dos dados e fallback local.
-4. Disponibilizar schema e configuração do Studio para edição do conteúdo.
-5. Verificar links, fallback, regras, tipos e build; documentar configuração.
+## Escopo
 
-A configuração do projeto externo Sanity depende da conta do responsável. Nenhuma conta ou publicação externa é criada automaticamente. A API só lê campos públicos do documento `groupPage`, ID `groupPage`; nenhum token secreto deve ir ao front.
+1. Apresentar nome, chamada, descrição e informações do grupo.
+2. Exibir atividades, regras e eventos publicados.
+3. Exibir imagem opcional nos eventos.
+4. Direcionar para Instagram e Facebook quando cadastrados.
+5. Oferecer temas claro, escuro e preferência do sistema.
+6. Usar skeleton durante o carregamento e conteúdo local básico se a API falhar.
+7. Permitir que editores convidados atualizem e publiquem conteúdo pelo painel do Contentful.
 
-## Verificação
+## Fora do escopo
 
-Vitest cobre conteúdo básico, regras/redes fornecidas, dados incompletos e rejeição de links inválidos. Build verifica TypeScript e gera a distribuição. Revisão visual e conteúdo final ainda dependem da identidade e dos textos fornecidos pelo responsável.
+- Link direto para o grupo;
+- endereço ou localização dos encontros;
+- contato pessoal de administradores;
+- confirmação de presença;
+- contas de visitantes;
+- mensagens ou interação dentro do site.
+
+## Conteúdo
+
+A aplicação lê a entrada publicada `perdidos-no-caps` no Space Contentful `nofz0vh5p7s4`. O frontend usa somente uma chave da Content Delivery API, sem permissão de edição. Tokens de gerenciamento são usados apenas pela migração local e não fazem parte do aplicativo ou da hospedagem.
