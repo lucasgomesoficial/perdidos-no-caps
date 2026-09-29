@@ -4,7 +4,7 @@ Vitrine pública de um grupo inclusivo para maiores de 18 anos. O projeto usa Re
 
 ## Rodar localmente
 
-Requer Node.js 22.12+ (ou 24 LTS) e npm.
+Requer Node.js 24 LTS e npm.
 
 ```sh
 npm install
