@@ -28,9 +28,6 @@
   },
   "include": [
     "src",
-    "vite.config.ts",
-    "sanity",
-    "sanity.config.ts",
-    "sanity.cli.ts"
+    "vite.config.ts"
   ]
 }

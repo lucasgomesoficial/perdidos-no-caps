@@ -6,7 +6,7 @@ const event = {
   title: 'Festa de Halloween',
   description: 'Venha com a sua fantasia.',
   image: {
-    url: 'https://cdn.sanity.io/images/khxz4stb/production/halloween-1080x1350.png?w=1200&auto=format',
+    url: 'https://images.ctfassets.net/nofz0vh5p7s4/asset/halloween.png?w=1200&fm=webp',
     width: 1080,
     height: 1350,
     alt: 'Banner da festa de Halloween',

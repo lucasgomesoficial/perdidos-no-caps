@@ -1,6 +1,6 @@
 # Perdidos no CAPS
 
-Vitrine pública de um grupo inclusivo para maiores de 18 anos. React + TypeScript + Vite, Tailwind CSS, padrão de componentes shadcn/ui e conteúdo no Sanity.
+Vitrine pública de um grupo inclusivo para maiores de 18 anos. O projeto usa React, TypeScript, Vite, Tailwind CSS, componentes no padrão shadcn/ui e conteúdo publicado no Contentful.
 
 ## Rodar localmente
 
@@ -8,10 +8,20 @@ Requer Node.js 22.12+ (ou 24 LTS) e npm.
 
 ```sh
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Sem variáveis de ambiente, o site usa os textos provisórios em `src/features/group/group.defaults.ts`. Nenhuma conta é necessária para visualizar essa versão. As regras e redes sociais ficam ocultas até serem cadastradas; não há URLs fictícias.
+Preencha no `.env.local` o token somente leitura da Content Delivery API. Sem configuração completa, o site utiliza os textos básicos de `src/features/group/group.defaults.ts`; regras, eventos e redes sociais não são inventados pelo fallback.
+
+```env
+VITE_CONTENTFUL_SPACE_ID=nofz0vh5p7s4
+VITE_CONTENTFUL_ENVIRONMENT=master
+VITE_CONTENTFUL_DELIVERY_TOKEN=
+VITE_CONTENTFUL_GROUP_PAGE_ENTRY_ID=perdidos-no-caps
+```
+
+Comandos de verificação:
 
 ```sh
 npm test
@@ -19,62 +29,93 @@ npm run build
 npm run preview
 ```
 
-`npm run test:watch` inicia o Vitest em modo contínuo. O build verifica os tipos e gera `dist/`, que pode ser hospedada como site estático.
+`npm run test:watch` inicia o Vitest em modo contínuo. O build verifica os tipos e gera `dist/`, que pode ser hospedado como site estático.
 
-## Como funciona o Sanity
+## Editar o conteúdo
 
-O Sanity guarda os textos em documentos. O Studio é o painel em que você edita esses documentos. O site lê somente o documento publicado, pela API pública; salvar um rascunho não altera o site até clicar em **Publish**.
+O painel editorial fica no Contentful. No Space do projeto, abra **Content** e edite a entrada **Perdidos no CAPS** do tipo **Página do grupo**.
 
-1. Crie sua conta em https://www.sanity.io/manage e crie um projeto com dataset **público** chamado `production`. Escolha o plano gratuito disponível na sua conta.
-2. Copie `.env.example` para `.env.local` e preencha `VITE_SANITY_PROJECT_ID` e `SANITY_STUDIO_PROJECT_ID` com o mesmo ID do projeto. Mantenha os dois datasets iguais.
-3. Na gestão do projeto Sanity, adicione `http://localhost:5173` e `http://localhost:3333` em **API → CORS origins**. Para a origem do site (`http://localhost:5173`), não habilite credenciais. Para a origem do Studio (`http://localhost:3333`), habilite **Allow credentials**, pois o painel exige login. Ao publicar o site, adicione também a origem HTTPS definitiva.
-4. Execute `npm run studio`. Faça login quando solicitado e abra o endereço exibido, normalmente `http://localhost:3333`.
-5. Abra **Página do grupo**, preencha os textos e publique. O painel utiliza o ID fixo `groupPage`, esperado pelo front.
-6. Execute ou reinicie `npm run dev` após mudar as variáveis. Recarregue o site para buscar o conteúdo publicado. O CDN do Sanity pode levar um breve período para refletir a alteração.
+O conteúdo usa três modelos:
 
-O Studio roda separado do front, neste mesmo projeto. Não é necessário publicar o Studio para editar localmente. `npm run studio:build` gera o painel em `dist/studio`, separado do site.
+- **Página do grupo (`groupPage`)**: textos gerais, atividades, redes sociais e listas ordenadas de regras e eventos;
+- **Regra do grupo (`groupRule`)**: título e descrição;
+- **Evento do grupo (`groupEvent`)**: título, descrição, imagem opcional e texto alternativo.
 
-**Nunca coloque tokens de edição em variáveis `VITE_*`: elas ficam visíveis no navegador.** Esta implementação não precisa de token. O dataset é público: publique apenas informações que qualquer visitante possa ler. Não há campos de telefone, WhatsApp ou local dos encontros.
+Salvar cria ou atualiza um rascunho. O site público só recebe alterações depois de clicar em **Publish**. Regras e eventos aparecem na ordem das referências dentro da Página do grupo.
 
-Se o Sanity estiver indisponível, o site apresenta os textos locais básicos. Um documento inexistente também usa essa base. Regras e contatos não são inventados no fallback. As requisições têm tempo limite e são canceladas ao desmontar a página.
+Para permitir que outra pessoa edite, convide-a nas configurações de usuários do Space. Ela acessa o painel do Contentful com a própria conta e não precisa de acesso ao repositório ou à Vercel.
+
+## API e segurança
+
+O frontend usa apenas a Content Delivery API, que é somente leitura. O token em `VITE_CONTENTFUL_DELIVERY_TOKEN` fica disponível no bundle do navegador por funcionamento do Vite, mas não permite criar, editar ou apagar conteúdo.
+
+Nunca coloque um Personal Access Token ou token da Content Management API em variável `VITE_*`, no repositório ou na Vercel. A aplicação publicada precisa somente das quatro variáveis mostradas acima.
+
+No painel do Contentful, o token de entrega fica em **Settings → API keys**. A chave criada para este projeto se chama **Perdidos no CAPS - Vite** e está limitada ao ambiente `master`.
+
+## Recriar os modelos e importar o conteúdo inicial
+
+O repositório possui uma migração idempotente. Ela cria ou atualiza os três modelos, publica as 11 regras, o evento e sua imagem, e mantém os mesmos IDs quando executada novamente.
+
+Crie temporariamente um Personal Access Token no Contentful e coloque-o no `.env.local`:
+
+```env
+CONTENTFUL_MANAGEMENT_TOKEN=
+```
+
+Execute:
+
+```sh
+npm run contentful:migrate
+```
+
+Remova `CONTENTFUL_MANAGEMENT_TOKEN` do `.env.local` assim que o comando terminar. O script usa `scripts/contentful/source-content.json` como cópia pública do conteúdo original e imprime o Entry ID que deve ficar em `VITE_CONTENTFUL_GROUP_PAGE_ENTRY_ID`.
+
+## Configurar a Vercel
+
+Cadastre estas variáveis no projeto da Vercel e faça um novo deploy:
+
+```text
+VITE_CONTENTFUL_SPACE_ID
+VITE_CONTENTFUL_ENVIRONMENT
+VITE_CONTENTFUL_DELIVERY_TOKEN
+VITE_CONTENTFUL_GROUP_PAGE_ENTRY_ID
+```
+
+Não cadastre `CONTENTFUL_MANAGEMENT_TOKEN`. O build continua sendo `npm run build` e o diretório de saída continua sendo `dist`.
+
+## Carregamento e fallback
+
+O site exibe um skeleton enquanto busca o conteúdo pela primeira vez. A camada de serviço lê exatamente a entrada configurada, resolve regras, eventos e imagens e converte a resposta para o modelo interno `GroupContent`.
+
+Se a configuração estiver ausente, a API falhar ou a entrada ainda não estiver publicada, a página permanece disponível com o conteúdo local básico. O hook encerra o carregamento, ignora respostas antigas quando a página desmonta e mostra detalhes técnicos apenas no console de desenvolvimento.
 
 ## Estrutura e responsabilidades
 
 ```text
 src/
-  App.tsx                         # Composição das páginas
+  App.tsx                              # Composição das páginas
   pages/home/
-    index.tsx                     # Conecta controller e view
-    home.controller.ts            # Regras de exibição e navegação da Home
-    home.view.tsx                 # Renderização, sem chamadas ou efeitos
-    home.types.ts                 # Contrato entre controller e view
-    components/                   # Hero, sobre, regras e contato
+    index.tsx                          # Conecta controller e view
+    home.controller.ts                 # Regras de exibição e navegação
+    home.view.tsx                      # Renderização sem chamadas ou efeitos
+    home.types.ts                      # Contrato entre controller e view
+    components/                        # Seções exclusivas da Home
   features/group/
-    group.types.ts                # Modelo de conteúdo do grupo
-    group.defaults.ts             # Apresentação local provisória
-    group.mapper.ts               # Normalização e validação do retorno externo
-    group.service.ts              # Consulta do documento e mapeamento
-    hooks/use-group-content.ts    # Estado, carregamento, fallback e cancelamento
-  services/sanity/client.ts       # Configuração do cliente público do CMS
+    group.types.ts                     # Modelo interno independente do CMS
+    group.defaults.ts                  # Apresentação local básica
+    group.mapper.ts                    # Validação e normalização do Contentful
+    group.service.ts                   # Busca da entrada publicada
+    hooks/use-group-content.ts         # Estado, loading, fallback e cancelamento
+  services/contentful/client.ts        # Cliente público da Delivery API
   components/
-    layout/                       # Cabeçalho e rodapé compartilháveis
-    ui/                           # Componentes básicos no padrão shadcn/ui
-  lib/utils.ts                    # Utilitário de classes CSS
-  test/setup.ts                   # Configuração comum dos testes
+    layout/                            # Cabeçalho e rodapé compartilháveis
+    ui/                                # Componentes básicos
+  test/setup.ts                        # Configuração comum dos testes
+scripts/contentful/
+  migrate.mjs                          # Executor da migração administrativa
+  migration-core.mjs                   # Modelos e payloads determinísticos
+  source-content.json                  # Cópia pública usada na importação
 ```
 
-Fluxo: **página → controller → hook → serviço → cliente Sanity**. O serviço normaliza a resposta antes de entregá-la ao hook; a controller transforma esse conteúdo em props para a view. A view apenas compõe as seções. Hooks e serviços não conhecem navegação, botões ou detalhes da página.
-
-A controller é um hook React (`useHomeController`) para poder consumir o hook de conteúdo. Ela decide quais seções e links aparecem. O hook `useGroupContent` pode ser consumido por outras páginas e aceita conteúdo inicial opcional para quando os dados já estiverem disponíveis; esse parâmetro inicializa a instância, não é uma prop controlada. Cada instância gerencia sua própria requisição; não há cache global.
-
-Componentes exclusivos da Home ficam em `pages/home/components`. Promova um componente para `components` quando ele tiver uso compartilhado, com props independentes da página. Para novas páginas, siga o padrão `index.tsx`, controller, view e componentes locais. O roteamento pode ser adicionado quando a segunda página existir.
-
-Os testes ficam próximos da responsabilidade testada: normalização e serviço em `features/group`, ciclo de vida do hook na pasta `hooks` e comportamento integrado da Home em `pages/home`. A configuração do Studio continua em `sanity.config.ts`, e os campos editáveis em `sanity/schemaTypes/groupPage.ts`. O tema está em `src/index.css`; `components.json` configura o CLI shadcn.
-
-## Antes da publicação
-
-Substituir os textos provisórios por conteúdo aprovado, cadastrar regras e redes oficiais, revisar a identidade visual e configurar o projeto Sanity e a hospedagem. A logo está pendente; o nome aparece como texto. A indicação de 18+ informa o público, não verifica idade. Esta entrega não cria contas nem publica o site.
-
-## Dependências indiretas
-
-`package.json` fixa correções via `overrides` para `adm-zip`, `js-yaml`, `smol-toml` e `uuid`, usados por ferramentas do Sanity. Isso evita versões sinalizadas pelo npm audit sem rebaixar o Sanity. Ao atualizar o Studio, reavalie esses overrides e rode testes, build do site e build do Studio.
+Fluxo: **página → controller → hook → serviço → cliente Contentful → mapper**. A view apenas renderiza e nenhuma seção depende de objetos do SDK.

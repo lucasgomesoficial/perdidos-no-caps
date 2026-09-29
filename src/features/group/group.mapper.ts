@@ -60,12 +60,6 @@ function optimizedImageUrl(rawUrl: string): string | undefined {
     const url = new URL(rawUrl.startsWith('//') ? `https:${rawUrl}` : rawUrl)
     if (url.protocol !== 'https:') return undefined
 
-    if (url.hostname === 'cdn.sanity.io') {
-      url.searchParams.set('w', '1200')
-      url.searchParams.set('auto', 'format')
-      return url.href
-    }
-
     if (url.hostname === 'images.ctfassets.net') {
       url.searchParams.set('w', '1200')
       url.searchParams.set('fm', 'webp')
@@ -79,12 +73,9 @@ function optimizedImageUrl(rawUrl: string): string | undefined {
 
 function image(value: unknown, fallbackAlt = ''): GroupImage | undefined {
   const data = fields(value)
-  const sanityAsset = record(data?.asset)
-  const sanityDimensions = record(record(sanityAsset?.metadata)?.dimensions)
-  const contentfulFile = record(data?.file)
-  const contentfulDimensions = record(record(contentfulFile?.details)?.image)
-  const rawUrl = requiredText(sanityAsset?.url) ?? requiredText(contentfulFile?.url)
-  const dimensions = sanityDimensions ?? contentfulDimensions
+  const file = record(data?.file)
+  const dimensions = record(record(file?.details)?.image)
+  const rawUrl = requiredText(file?.url)
   const width = dimensions?.width
   const height = dimensions?.height
 
