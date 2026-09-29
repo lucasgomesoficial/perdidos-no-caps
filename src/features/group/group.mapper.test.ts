@@ -108,3 +108,32 @@ describe('normalização do conteúdo do grupo', () => {
     ])
   })
 })
+
+it.each([Number.NaN, Number.POSITIVE_INFINITY])(
+  'remove imagem com dimensão não finita: %s',
+  (width) => {
+    const content = normalizeContent({
+      fields: {
+        events: [
+          {
+            fields: {
+              title: 'Evento',
+              description: 'Descrição',
+              image: {
+                fields: {
+                  file: {
+                    url: '//images.ctfassets.net/nofz0vh5p7s4/asset/evento.jpg',
+                    details: { image: { width, height: 630 } },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+    expect(content.events).toEqual([
+      { title: 'Evento', description: 'Descrição' },
+    ])
+  },
+)

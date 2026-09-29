@@ -11,3 +11,7 @@ export function isNotFoundError(error) {
     error?.response?.status === 404
   )
 }
+
+export function assetNeedsProcessing(asset, locale) {
+  return !asset?.fields?.file?.[locale]?.url
+}

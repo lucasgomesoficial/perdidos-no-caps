@@ -27,6 +27,7 @@ export async function loadGroupContent(
 ): Promise<GroupContent> {
   if (!contentfulClient || !contentfulGroupPageEntryId)
     return normalizeContent(null)
+  if (signal.aborted) throw abortError()
 
   const request = contentfulClient.withoutUnresolvableLinks.getEntry(
     contentfulGroupPageEntryId,

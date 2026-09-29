@@ -1,4 +1,8 @@
-import { createLegacyManagementClient, isNotFoundError } from './migration-client.mjs'
+import {
+  assetNeedsProcessing,
+  createLegacyManagementClient,
+  isNotFoundError,
+} from './migration-client.mjs'
 import source from './source-content.json' with { type: 'json' }
 import {
   buildContentTypes,
@@ -80,11 +84,13 @@ async function upsertAsset(definition) {
         file: { [locale]: assetFile(definition) },
       },
     })
-    asset = await asset.processForAllLocales()
   } else {
     asset.fields.title = { [locale]: definition.title }
     asset.fields.description = { [locale]: definition.description }
     asset = await asset.update()
+  }
+  if (assetNeedsProcessing(asset, locale)) {
+    asset = await asset.processForAllLocales()
   }
   return asset.publish()
 }

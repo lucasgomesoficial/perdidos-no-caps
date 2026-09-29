@@ -19,3 +19,19 @@ it('reconhece o erro NotFound emitido pelo SDK legado', async () => {
   expect(module.isNotFoundError({ status: 404 })).toBe(true)
   expect(module.isNotFoundError(new Error('network'))).toBe(false)
 })
+
+it('identifica asset existente que ainda não terminou o processamento', async () => {
+  const module = await import('./migration-client.mjs')
+  expect(
+    module.assetNeedsProcessing(
+      { fields: { file: { 'pt-BR': { upload: 'https://example.com/a.png' } } } },
+      'pt-BR',
+    ),
+  ).toBe(true)
+  expect(
+    module.assetNeedsProcessing(
+      { fields: { file: { 'pt-BR': { url: '//images.ctfassets.net/a.png' } } } },
+      'pt-BR',
+    ),
+  ).toBe(false)
+})

@@ -43,3 +43,14 @@ describe('carregamento pelo Contentful', () => {
     await expect(request).rejects.toMatchObject({ name: 'AbortError' })
   })
 })
+
+it('não inicia uma requisição quando o sinal já está abortado', async () => {
+  const { loadGroupContent } = await import('./group.service')
+  const controller = new AbortController()
+  controller.abort()
+
+  await expect(loadGroupContent(controller.signal)).rejects.toMatchObject({
+    name: 'AbortError',
+  })
+  expect(mocks.getEntry).not.toHaveBeenCalled()
+})

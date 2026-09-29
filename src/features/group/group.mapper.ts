@@ -83,6 +83,8 @@ function image(value: unknown, fallbackAlt = ''): GroupImage | undefined {
     !rawUrl ||
     typeof width !== 'number' ||
     typeof height !== 'number' ||
+    !Number.isFinite(width) ||
+    !Number.isFinite(height) ||
     width <= 0 ||
     height <= 0
   )

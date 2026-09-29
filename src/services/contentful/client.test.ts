@@ -37,3 +37,18 @@ it('cria cliente para uma configuração pública completa', async () => {
   })
   expect(configuration.contentfulGroupPageEntryId).toBe('group-page-entry')
 })
+
+it.each([
+  ['token com espaço', 'delivery token inválido', 'group-page-entry'],
+  ['Entry ID acima do limite', 'delivery-token', 'a'.repeat(65)],
+])('rejeita configuração pública malformada: %s', async (_, token, entryId) => {
+  vi.stubEnv('VITE_CONTENTFUL_SPACE_ID', 'nofz0vh5p7s4')
+  vi.stubEnv('VITE_CONTENTFUL_ENVIRONMENT', 'master')
+  vi.stubEnv('VITE_CONTENTFUL_DELIVERY_TOKEN', token)
+  vi.stubEnv('VITE_CONTENTFUL_GROUP_PAGE_ENTRY_ID', entryId)
+
+  const configuration = await import('./client')
+
+  expect(configuration.contentfulClient).toBeNull()
+  expect(mocks.createClient).not.toHaveBeenCalled()
+})
